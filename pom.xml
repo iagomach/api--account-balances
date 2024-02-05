@@ -112,6 +112,7 @@
 				<version>7.2.0</version>
 				<executions>
 					<execution>
+						<id>server</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
@@ -122,6 +123,48 @@
 							<generatorName>spring</generatorName>
 							<apiPackage>com.fakebank.account.balances.transportlayers.api</apiPackage>
 							<modelPackage>com.fakebank.account.balances.transportlayers.dto</modelPackage>
+							<modelNameSuffix>Dto</modelNameSuffix>
+							<configOptions>
+								<dateLibrary>java8</dateLibrary>
+								<interfaceOnly>true</interfaceOnly>
+								<sourceFolder>src/gen/java/main</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>bacen</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${project.basedir}/src/main/resources/clients/bacen-notification.yaml
+							</inputSpec>
+							<generatorName>spring</generatorName>
+							<apiPackage>com.fakebank.account.balances.interactors.api.clients</apiPackage>
+							<modelPackage>com.fakebank.account.balances.interactors.dto.clients</modelPackage>
+							<modelNameSuffix>Dto</modelNameSuffix>
+							<configOptions>
+								<dateLibrary>java8</dateLibrary>
+								<interfaceOnly>true</interfaceOnly>
+								<sourceFolder>src/gen/java/main</sourceFolder>
+								<useSpringBoot3>true</useSpringBoot3>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cadastro</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>
+								${project.basedir}/src/main/resources/clients/cadastro.yaml
+							</inputSpec>
+							<generatorName>spring</generatorName>
+							<apiPackage>com.fakebank.account.balances.datasources.api</apiPackage>
+							<modelPackage>com.fakebank.account.balances.datasources.dto</modelPackage>
 							<modelNameSuffix>Dto</modelNameSuffix>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
