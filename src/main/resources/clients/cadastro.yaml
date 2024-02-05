@@ -3,7 +3,7 @@ info:
   title: API Cadastro
   version: 1.0.0
 servers:
-  - url: 'https://localhost:5000/accounts/v1'
+  - url: 'https://localhost:5000/customers/v1'
     description: Servidor de Desenvolvimento
 tags:
   - name: Accounts
