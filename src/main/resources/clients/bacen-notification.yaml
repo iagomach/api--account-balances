@@ -1,0 +1,72 @@
+openapi: 3.0.0
+info:
+  title: API BACEN Notificação
+  description: Operações de notificação de transferências.
+  version: 1.0.0
+servers:
+  - url: 'https://localhost:3000/bacen/accounts/v1'
+    description: Servidor de Desenvolvimento
+tags:
+  - name: Notification
+    description: Operações de notificação de transferências.
+paths:
+  /transfer-notification:
+    post:
+      tags:
+        - Notification
+      operationId: transferPostNotification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequestData'
+      responses:
+        '204':
+          description: Notificação processada com sucesso.
+components:
+  schemas:
+    NotificationRequestData:
+      type: object
+      required:
+        - targetAccountFullName
+        - transactionType
+        - amount
+      properties:
+        targetAccountFullName:
+          type: string
+          description: Nome completo do cliente da conta de destino,
+          maxLength: 70
+          pattern: ^[\w\W]*$
+          example: Milton Nascimento
+        transactionType:
+          $ref: '#/components/schemas/EnumTransactionTypes'
+        amount:
+          type: string
+          format: double
+          pattern: '^\d{1,15}\.\d{2}$'
+          maxLength: 20
+          minLength: 4
+          example: '1000.00'
+          description: Valor total (BRL) transferido.
+    EnumTransactionTypes:
+      type: string
+      description: |
+        O campo deve classificar a transação em um dos tipos descritos.
+      enum:
+        - TED
+        - DOC
+        - TRANSFERENCIA_MESMA_INSTITUICAO
+      example: TRANSFERENCIA_MESMA_INSTITUICAO
+    MetaOnlyRequestDateTime:
+      type: object
+      description: Meta informações referente à API requisitada.
+      required:
+        - requestDateTime
+      properties:
+        requestDateTime:
+          description: 'Data e hora da consulta, conforme especificação RFC-3339, formato UTC.'
+          type: string
+          maxLength: 20
+          format: date-time
+          example: '2024-02-04T08:30:00Z'
