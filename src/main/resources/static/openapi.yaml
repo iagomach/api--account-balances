@@ -1,0 +1,341 @@
+openapi: 3.0.0
+info:
+  title: API Account Balances
+  description: Contém operações relacionadas aos saldos da conta do cliente do Fake Bank.
+  version: 1.0.0
+  contact:
+    name: Iago Pari Machado
+    email: iagomach@msn.com
+    url: 'https://github.com/iagomach/'
+servers:
+  - url: 'https://localhost:5000/accounts/v1'
+    description: Servidor de Desenvolvimento
+tags:
+  - name: Balances
+    description: Operações para manutenção dos saldos da conta do cliente
+paths:
+  /transfer:
+    post:
+      tags:
+        - Balances
+      summary: Executa a transferência do saldo para outra conta
+      operationId: balancesPostTransfer
+      description: 'Método para transferir o saldo da conta do cliente para outra conta destino. Após a transferência, é enviada uma notificação para o BACEN. '
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                targetAccountFullName:
+                  type: string
+                  description: Nome completo do cliente da conta de destino,
+                  maxLength: 70
+                  pattern: ^[\w\W]*$
+                  example: Milton Nascimento
+                transactionType:
+                  $ref: '#/components/schemas/EnumTransactionTypes'
+                amount:
+                  type: string
+                  format: double
+                  pattern: '^\d{1,15}\.\d{2}$'
+                  maxLength: 20
+                  minLength: 4
+                  example: '1000.00'
+                  description: Valor total (BRL) transferido.
+      responses:
+        '200':
+          $ref: '#/components/responses/OKResponseBalancesTransfer'
+        '400':
+          $ref: '#/components/responses/BadRequestBalancesTransfer'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntityBalancesTransfer'
+        '429':
+          description: 'A operação foi recusada, pois muitas solicitações foram feitas dentro de um determinado período ou o limite global de requisições concorrentes foi atingido'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '504':
+          description: GATEWAY TIMEOUT - A requisição não foi atendida dentro do tempo limite estabelecido
+        '529':
+          description: 'O site está sobrecarregado e a operação foi recusada, pois foi atingido o limite máximo de TPS global, neste momento.'
+      security:
+        - bearerAuth: []
+components:
+  schemas:
+    400ResponseErrorBalancesTransfer:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          maxItems: 9
+          items:
+            type: object
+            required:
+              - code
+              - title
+              - detail
+            properties:
+              code:
+                $ref: '#/components/schemas/EnumErrorsBalancesTransfer'
+              title:
+                type: string
+                maxLength: 255
+                pattern: '[\w\W\s]*'
+                example: Conta destino inválida.
+                description: |
+                  Título específico do erro reportado, de acordo com o código enviado:
+                  - CONTA_DESTINO_INVALIDA: Conta destino inválida.
+                  - TIPO_TRANSACAO_INVALIDO: Tipo de transferência inválido.
+                  - VALOR_TRANSFERENCIA_INVALIDO: Valor da transferência inválido.
+              detail:
+                type: string
+                maxLength: 2048
+                pattern: '[\w\W\s]*'
+                example: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
+                description: |
+                  Descrição específica do erro de acordo com o código reportado:
+                  - CONTA_DESTINO_INVALIDA: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
+                  - TIPO_TRANSACAO_INVALIDO: Tipo de transferência informado é inválido.
+                  - VALOR_TRANSFERENCIA_INVALIDO: O valor da transferência informado é inválido.
+        meta:
+          $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    422ResponseErrorBalancesTransfer:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          maxItems: 9
+          items:
+            type: object
+            required:
+              - code
+              - title
+              - detail
+            properties:
+              code:
+                $ref: '#/components/schemas/EnumErrorsBalancesTransfer'
+              title:
+                type: string
+                maxLength: 255
+                pattern: '[\w\W\s]*'
+                example: Saldo insuficiente.
+                description: |
+                  Título específico do erro reportado, de acordo com o código enviado:
+                  - SALDO_INSUFICIENTE: Saldo insuficiente.
+                  - VALOR_ACIMA_LIMITE: Acima do limite estabelecido.
+              detail:
+                type: string
+                maxLength: 2048
+                pattern: '[\w\W\s]*'
+                example: A conta selecionada não possui saldo suficiente para realizar a transferência.
+                description: |
+                  Descrição específica do erro de acordo com o código reportado:
+                  - SALDO_INSUFICIENTE: A conta de origem não possui saldo suficiente para realizar a transferência.
+                  - VALOR_ACIMA_LIMITE: O valor ultrapassa a faixa de limite diário para transferências.
+        meta:
+          $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    BalancesTransferData:
+      type: object
+      required:
+        - targetAccountName
+      properties:
+        availableAmount:
+          type: string
+          format: double
+          pattern: '^\d{1,15}\.\d{2}$'
+          maxLength: 20
+          minLength: 4
+          example: '1000.00'
+          description: Valor total (BRL) transferido.
+    EnumErrorsBalancesTransfer:
+      type: string
+      enum:
+        - SALDO_INSUFICIENTE
+        - VALOR_ACIMA_LIMITE
+      example: SALDO_INSUFICIENTE
+      description: |
+        Códigos de erros previstos na criação da iniciação de pagamento:
+        - SALDO_INSUFICIENTE: A conta de origem não possui saldo suficiente para realizar a transferência.
+        - VALOR_ACIMA_LIMITE: O valor ultrapassa a faixa de limite diário para transferências.
+    EnumTransactionTypes:
+      type: string
+      description: |
+        O campo deve classificar a transação em um dos tipos descritos.
+      enum:
+        - TED
+        - DOC
+        - TRANSFERENCIA_MESMA_INSTITUICAO
+      example: TRANSFERENCIA_MESMA_INSTITUICAO
+    MetaOnlyRequestDateTime:
+      type: object
+      description: Meta informações referente à API requisitada.
+      required:
+        - requestDateTime
+      properties:
+        requestDateTime:
+          description: 'Data e hora da consulta, conforme especificação RFC-3339, formato UTC.'
+          type: string
+          maxLength: 20
+          format: date-time
+          example: '2024-02-04T08:30:00Z'
+    ResponseErrorMetaSingle:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          maxItems: 13
+          items:
+            type: object
+            required:
+              - code
+              - title
+              - detail
+            properties:
+              code:
+                description: Código de erro específico do endpoint
+                type: string
+                pattern: '[\w\W\s]*'
+                maxLength: 255
+              title:
+                description: Título legível por humanos deste erro específico
+                type: string
+                pattern: '[\w\W\s]*'
+                maxLength: 255
+              detail:
+                description: Descrição legível por humanos deste erro específico
+                type: string
+                pattern: '[\w\W\s]*'
+                maxLength: 2048
+        meta:
+          $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    ResponseTransferedBalances:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/BalancesTransferData'
+        meta:
+          $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    XB3TraceId:
+      type: string
+      maxLength: 16
+      pattern: '^[0-9a-fA-F]{16}$'
+      example: 4e30f7340b3fb631
+      description: 'Sequência hexadecimal de 16 caracteres, usado como um ID de correlação entre request e response.'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequestBalancesTransfer:
+      description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/400ResponseErrorBalancesTransfer'
+          examples:
+            Saldo insuficiente:
+              summary: Conta de destino inválida
+              value:
+                errors:
+                  - code: CONTA_DESTINO_INVALIDA
+                    title: Conta de destino inválida.
+                    detail: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
+            Tipo de transferência inválido:
+              summary: Tipo de transferência inválido
+              value:
+                errors:
+                  - code: TIPO_TRANSACAO_INVALIDO
+                    title: Tipo de transferência inválido.
+                    detail: Tipo de transferência informado é inválido.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
+            Valor de transferência inválido:
+              summary: Valor da transferência inválido
+              value:
+                errors:
+                  - code: VALOR_TRANSFERENCIA_INVALIDO
+                    title: Valor da transferência inválido.
+                    detail: O valor da transferência informado é inválido.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
+    InternalServerError:
+      description: Ocorreu um erro inesperado no servidor
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseErrorMetaSingle'
+          example:
+            errors:
+              - code: INTERNAL_SERVER_ERROR
+                title: Erro interno do servidor.
+                detail: Ocorreu um erro inesperado no servidor.
+            meta:
+              requestDateTime: '2024-02-04T08:30:00Z'
+    OKResponseBalancesTransfer:
+      description: Dados de identificação das contas obtidos com sucesso.
+      headers:
+        X-B3-TraceId:
+          required: true
+          description: 'Sequência hexadecimal de 16 caracteres, usado como um id de correlação entre request e response.'
+          schema:
+            $ref: '#/components/schemas/XB3TraceId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseTransferedBalances'
+    Unauthorized:
+      description: Cabeçalho de autenticação ausente/inválido ou token inválido
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/ResponseErrorMetaSingle'
+          example:
+            errors:
+              - code: UNAUTHORIZED
+                title: Credenciais inválidas.
+                detail: Cabeçalho de autenticação ausente/inválido ou token inválido.
+            meta:
+              requestDateTime: '2024-02-04T08:30:00Z'
+    UnprocessableEntityBalancesTransfer:
+      description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
+      content:
+        application/json; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/422ResponseErrorBalancesTransfer'
+          examples:
+            Saldo insuficiente:
+              summary: Saldo insuficiente
+              value:
+                errors:
+                  - code: SALDO_INSUFICIENTE
+                    title: Saldo insuficiente.
+                    detail: A conta selecionada não possui saldo suficiente para realizar a transferência.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
+            Valor acima do limite:
+              summary: Valor acima do limite
+              value:
+                errors:
+                  - code: VALOR_ACIMA_LIMITE
+                    title: Valor acima do limite.
+                    detail: O valor ultrapassa a faixa de limite diário para transferências.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
