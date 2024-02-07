@@ -99,7 +99,12 @@
 			<artifactId>mapstruct</artifactId>
 			<version>1.5.5.Final</version>
 		</dependency>
-
+		<!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct-processor</artifactId>
+			<version>1.5.5.Final</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -149,7 +154,6 @@
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
-								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -174,7 +178,6 @@
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
-								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -199,7 +202,6 @@
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
-								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>

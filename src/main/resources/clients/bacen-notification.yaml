@@ -42,11 +42,8 @@ components:
         transactionType:
           $ref: '#/components/schemas/EnumTransactionTypes'
         amount:
-          type: string
+          type: number
           format: double
-          pattern: '^\d{1,15}\.\d{2}$'
-          maxLength: 20
-          minLength: 4
           example: '1000.00'
           description: Valor total (BRL) transferido.
     EnumTransactionTypes:
