@@ -11,7 +11,7 @@ public interface ResponseTransferedBalancesMapper {
 
     ResponseTransferedBalancesMapper INSTANCE = Mappers.getMapper(ResponseTransferedBalancesMapper.class);
 
-    @Mapping(source = "availableBalancesAmountLimit", target = "availableAmount")
+    @Mapping(source = "availableBalancesAmountLimit", target = "data.availableAmount")
     ResponseTransferedBalancesModel map(CustomerAccount customerAccount);
 
 }
