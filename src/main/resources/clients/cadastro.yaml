@@ -3,17 +3,17 @@ info:
   title: API Cadastro
   version: 1.0.0
 servers:
-  - url: 'https://localhost:5000/customers/v1'
+  - url: 'https://localhost:3000/customers/v1'
     description: Servidor de Desenvolvimento
 tags:
-  - name: Accounts
+  - name: Customers Accounts
     description: Operações para listagem das informações da Conta do Cliente
 paths:
   '/accounts/{customerName}':
     get:
       tags:
-        - Accounts
-      operationId: accountsGetAccountsCustomerName
+        - Customers Accounts
+      operationId: customersGetAccountsCustomerName
       parameters:
         - $ref: '#/components/parameters/customerName'
       responses:
@@ -78,15 +78,27 @@ components:
           example: BRL
         status:
           $ref: '#/components/schemas/EnumAccountStatus'
-        balancesAmount:
+        balancesTransferLimit:
+          $ref: '#/components/schemas/BalancesTransferLimitData'
+    BalancesTransferLimitData:
+      type: object
+      properties:
+        availableAmount:
           type: string
           format: double
           pattern: '^\d{1,15}\.\d{2}$'
           maxLength: 20
           minLength: 4
           example: '1000.00'
-          description: Saldo total disponível na conta (considerando cheque especial).
-
+          description: Limite disponível para transferência
+        maxSetAmount:
+          type: string
+          format: double
+          pattern: '^\d{1,15}\.\d{2}$'
+          maxLength: 20
+          minLength: 4
+          example: '1000.00'
+          description: Limite disponível para transferência
     EnumAccountSubType:
       type: string
       enum:

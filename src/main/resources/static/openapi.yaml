@@ -8,13 +8,13 @@ info:
     email: iagomach@msn.com
     url: 'https://github.com/iagomach/'
 servers:
-  - url: 'https://localhost:5000/accounts/v1'
+  - url: 'https://localhost:5000'
     description: Servidor de Desenvolvimento
 tags:
   - name: Balances
     description: Operações para manutenção dos saldos da conta do cliente
 paths:
-  /transfer:
+  /accounts/v1/transfer:
     post:
       tags:
         - Balances
@@ -45,7 +45,7 @@ paths:
         '529':
           description: 'O site está sobrecarregado e a operação foi recusada, pois foi atingido o limite máximo de TPS global, neste momento.'
       security:
-        - bearerAuth: []
+        - httpBasic: []
 components:
   schemas:
     400ResponseErrorBalancesTransfer:
@@ -243,10 +243,9 @@ components:
       example: 4e30f7340b3fb631
       description: 'Sequência hexadecimal de 16 caracteres, usado como um ID de correlação entre request e response.'
   securitySchemes:
-    bearerAuth:
+    basicAuth:
       type: http
-      scheme: bearer
-      bearerFormat: JWT
+      scheme: basic
   responses:
     BadRequestBalancesTransfer:
       description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
