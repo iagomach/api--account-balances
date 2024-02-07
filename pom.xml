@@ -46,6 +46,11 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 			<version>3.2.2</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-boot-starter</artifactId>
@@ -65,7 +70,6 @@
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
-			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -89,6 +93,13 @@
 			<version>1.0.1</version>
 			<scope>test</scope>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.5.5.Final</version>
+		</dependency>
+
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -128,13 +139,17 @@
 							</inputSpec>
 							<generatorName>spring</generatorName>
 							<apiPackage>com.fakebank.account.balances.transportlayers.api</apiPackage>
-							<modelPackage>com.fakebank.account.balances.transportlayers.dto</modelPackage>
-							<modelNameSuffix>Dto</modelNameSuffix>
+							<modelPackage>com.fakebank.account.balances.transportlayers.models</modelPackage>
+							<modelNameSuffix>Model</modelNameSuffix>
+							<typeMappings>
+								<typeMapping>Double=java.math.BigDecimal</typeMapping>
+							</typeMappings>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
+								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -148,14 +163,18 @@
 								${project.basedir}/src/main/resources/clients/bacen-notification.yaml
 							</inputSpec>
 							<generatorName>spring</generatorName>
-							<apiPackage>com.fakebank.account.balances.interactors.api.clients</apiPackage>
-							<modelPackage>com.fakebank.account.balances.interactors.dto.clients</modelPackage>
-							<modelNameSuffix>Dto</modelNameSuffix>
+							<apiPackage>com.fakebank.account.balances.interactors.clients.bacen.api</apiPackage>
+							<modelPackage>com.fakebank.account.balances.interactors.clients.bacen.models</modelPackage>
+							<modelNameSuffix>Model</modelNameSuffix>
+							<typeMappings>
+								<typeMapping>Double=java.math.BigDecimal</typeMapping>
+							</typeMappings>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
+								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>
@@ -169,14 +188,18 @@
 								${project.basedir}/src/main/resources/clients/cadastro.yaml
 							</inputSpec>
 							<generatorName>spring</generatorName>
-							<apiPackage>com.fakebank.account.balances.datasources.api</apiPackage>
-							<modelPackage>com.fakebank.account.balances.datasources.dto</modelPackage>
-							<modelNameSuffix>Dto</modelNameSuffix>
+							<apiPackage>com.fakebank.account.balances.datasources.clients.cadastro.api</apiPackage>
+							<modelPackage>com.fakebank.account.balances.datasources.clients.cadastro.models</modelPackage>
+							<modelNameSuffix>Model</modelNameSuffix>
+							<typeMappings>
+								<typeMapping>Double=java.math.BigDecimal</typeMapping>
+							</typeMappings>
 							<configOptions>
 								<dateLibrary>java8</dateLibrary>
 								<interfaceOnly>true</interfaceOnly>
 								<sourceFolder>src/gen/java/main</sourceFolder>
 								<useSpringBoot3>true</useSpringBoot3>
+								<bigDecimalAsString>true</bigDecimalAsString>
 							</configOptions>
 						</configuration>
 					</execution>
