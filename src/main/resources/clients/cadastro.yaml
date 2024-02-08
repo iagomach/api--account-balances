@@ -19,6 +19,22 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/OKResponseAccountIdentification'
+  '/accounts/deposit':
+    post:
+      tags:
+        - Customers Accounts
+      operationId: customersPostDeposit
+      parameters:
+        - $ref: '#/components/parameters/customerName'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '204':
+          description: Cadastro atualizado com sucesso.
 components:
   schemas:
     AccountIdentificationData:
@@ -148,6 +164,23 @@ components:
           $ref: '#/components/schemas/AccountIdentificationData'
         meta:
           $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    DepositRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        name:
+          type: string
+          description: Nome completo do cliente que receberá dinheiro
+          maxLength: 70
+          pattern: ^[\w\W]*$
+          example: Milton Nascimento
+        amount:
+          type: number
+          minimum: 1
+          format: double
+          example: 1000.01
+          description: Valor total (BRL) transferido.
   parameters:
     customerName:
       name: customerName

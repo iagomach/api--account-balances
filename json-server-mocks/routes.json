@@ -1,3 +1,5 @@
 {
-  "/customers/v1/accounts/Iago%20Pari%20Machado": "/customers"
+  "/customers/v1/accounts/Iago%20Pari%20Machado": "/customers",
+  "/customers/v1/accounts/deposit": "/deposit",
+  "/bacen/accounts/v1/transfer-notification": "/bacen"
 }

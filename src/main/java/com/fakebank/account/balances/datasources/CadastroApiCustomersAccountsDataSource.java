@@ -1,6 +1,7 @@
 package com.fakebank.account.balances.datasources;
 
 import com.fakebank.account.balances.datasources.clients.CadastroClient;
+import com.fakebank.account.balances.datasources.clients.cadastro.models.DepositRequestModel;
 import com.fakebank.account.balances.datasources.mappers.CustomerAccountMapper;
 import com.fakebank.account.balances.entities.accounts.CustomerAccount;
 import com.fakebank.account.balances.repositories.CustomersAccountsRepository;
@@ -10,6 +11,8 @@ import feign.FeignException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Repository;
+
+import java.math.BigDecimal;
 
 @Repository
 public class CadastroApiCustomersAccountsDataSource implements CustomersAccountsRepository {
@@ -35,4 +38,16 @@ public class CadastroApiCustomersAccountsDataSource implements CustomersAccounts
             throw new InternalServerErrorException();
         }
     }
+
+    @Override
+    public void updateAvailableLimitByName(String fullName, BigDecimal amountToSum) {
+        try {
+            this.cadastroClient.postDeposit(new DepositRequestModel()
+                    .name(fullName)
+                    .amount(amountToSum));
+        } catch (FeignException e) {
+            throw new InternalServerErrorException();
+        }
+    }
 }
+
