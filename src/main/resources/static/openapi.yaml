@@ -153,9 +153,11 @@ components:
           $ref: '#/components/schemas/EnumTransactionTypes'
         amount:
           type: number
+          minimum: 1
           format: double
           example: '1000.00'
           description: Valor total (BRL) transferido.
+          exclusiveMinimum: true
     EnumBadRequestTransfer:
       type: string
       enum:
