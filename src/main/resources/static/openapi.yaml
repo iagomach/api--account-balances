@@ -296,9 +296,9 @@ components:
     OKResponseBalancesTransfer:
       description: Dados de identificação das contas obtidos com sucesso.
       headers:
-        X-B3-TraceId:
+        X-W3C-TraceId:
           required: true
-          description: 'Sequência hexadecimal de 16 caracteres, usado como um id de correlação entre request e response.'
+          description: 'Sequência hexadecimal de 32 caracteres, usado como um id de correlação entre request e response.'
           schema:
             $ref: '#/components/schemas/XB3TraceId'
       content:
