@@ -40,10 +40,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ExceptionHandler({AccountInactiveException.class})
     public ResponseEntity<Object> accountInactiveExceptionHandler(AccountInactiveException e) {
         this.logger.error(e.getMessage());
-        ErrorDto errorDto = new ErrorDto.Builder(CONTA_INATIVA.name())
-                .setTitle(CONTA_ORIGEM_INATIVA)
-                .setDetail(e.getMessage())
-                .build();
+        ErrorDto errorDto = getErrorDto(CONTA_INATIVA.name(), CONTA_ORIGEM_INATIVA, e.getMessage());
         ResponseErrorDto responseErrorDto = getResponseErrorDto(errorDto);
         return new ResponseEntity<>(responseErrorDto, HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -51,10 +48,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ExceptionHandler({InsufficientFundsException.class})
     public ResponseEntity<Object> insufficientFundsExceptionHandler(InsufficientFundsException e) {
         this.logger.error(e.getMessage());
-        ErrorDto errorDto = new ErrorDto.Builder(SALDO_INSUFICIENTE.name())
-                .setTitle(SALDO_INSUFICIENTE_TITLE)
-                .setDetail(e.getMessage())
-                .build();
+        ErrorDto errorDto = getErrorDto(SALDO_INSUFICIENTE.name(), SALDO_INSUFICIENTE_TITLE, e.getMessage());
         ResponseErrorDto responseErrorDto = getResponseErrorDto(errorDto);
         return new ResponseEntity<>(responseErrorDto, HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -62,10 +56,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     @ExceptionHandler({LimitExceededException.class})
     public ResponseEntity<Object> limitExceededExceptionHandler(LimitExceededException e) {
         this.logger.error(e.getMessage());
-        ErrorDto errorDto = new ErrorDto.Builder(VALOR_ACIMA_LIMITE.name())
-                .setTitle(VALOR_ACIMA_DO_LIMITE_TITLE)
-                .setDetail(e.getMessage())
-                .build();
+        ErrorDto errorDto = getErrorDto(VALOR_ACIMA_LIMITE.name(), VALOR_ACIMA_DO_LIMITE_TITLE, e.getMessage());
         ResponseErrorDto responseErrorDto = getResponseErrorDto(errorDto);
         return new ResponseEntity<>(responseErrorDto, HttpStatus.UNPROCESSABLE_ENTITY);
     }
@@ -74,13 +65,18 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     public ResponseEntity<Object> repositoryInternalServerErrorExceptionHandler(RuntimeException e,
                                                                                 WebRequest request) {
         this.logger.error("Error " + e + " path " + ((ServletWebRequest) request).getRequest().getRequestURI());
-
-        ErrorDto errorDto = new ErrorDto.Builder(INTERNAL_SERVER_ERROR.name())
-                .setTitle(ERRO_INTERNO_DO_SERVIDOR)
-                .setDetail(OCORREU_UM_ERRO_INESPERADO_NO_SERVIDOR_CONTATE_O_ADMINISTRADOR_DO_SISTEMA)
-                .build();
+        ErrorDto errorDto = getErrorDto(INTERNAL_SERVER_ERROR.name(),
+                ERRO_INTERNO_DO_SERVIDOR,
+                OCORREU_UM_ERRO_INESPERADO_NO_SERVIDOR_CONTATE_O_ADMINISTRADOR_DO_SISTEMA);
         ResponseErrorDto responseErrorDto = getResponseErrorDto(errorDto);
         return new ResponseEntity<>(responseErrorDto, INTERNAL_SERVER_ERROR);
+    }
+
+    private static ErrorDto getErrorDto(String code, String title, String detail) {
+        return new ErrorDto.Builder(code)
+                .setTitle(title)
+                .setDetail(detail)
+                .build();
     }
 
     private static ResponseErrorDto getResponseErrorDto(ErrorDto errorDto) {
