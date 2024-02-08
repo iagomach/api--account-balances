@@ -4,4 +4,4 @@ server:
 clients:
   url:
     cadastro: https://localhost:3000/customers/v1
-    bacen: https://localhost:3000/bacen/v1
+    bacen: https://localhost:3000/bacen/accounts/v1
