@@ -1,6 +1,7 @@
 package com.fakebank.account.balances.transportlayers.mappers;
 
 import com.fakebank.account.balances.entities.accounts.CustomerAccount;
+import com.fakebank.account.balances.transportlayers.dtos.MetaDto;
 import com.fakebank.account.balances.transportlayers.models.ResponseTransferedBalancesModel;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -11,7 +12,8 @@ public interface ResponseTransferedBalancesMapper {
 
     ResponseTransferedBalancesMapper INSTANCE = Mappers.getMapper(ResponseTransferedBalancesMapper.class);
 
-    @Mapping(source = "availableBalancesAmountLimit", target = "data.availableAmount")
-    ResponseTransferedBalancesModel map(CustomerAccount customerAccount);
+    @Mapping(source = "customerAccount.availableBalancesAmountLimit", target = "data.availableAmount")
+    @Mapping(source = "metaDto", target = "meta")
+    ResponseTransferedBalancesModel map(CustomerAccount customerAccount, MetaDto metaDto);
 
 }
