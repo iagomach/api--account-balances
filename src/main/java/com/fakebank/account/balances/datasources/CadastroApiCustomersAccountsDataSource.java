@@ -30,7 +30,9 @@ public class CadastroApiCustomersAccountsDataSource implements CustomersAccounts
     public CustomerAccount findByName(String fullName) {
         try {
             var cadastroClientResponse = this.cadastroClient.getAccountsCustomerName(fullName);
-            return CustomerAccountMapper.INSTANCE.map(cadastroClientResponse.getBody());
+            CustomerAccount customerAccount = CustomerAccountMapper.INSTANCE.map(cadastroClientResponse.getBody());
+            customerAccount.setName(fullName);
+            return customerAccount;
         } catch (FeignException.NotFound e) {
             throw new AccountNotFoundException(fullName);
         } catch (FeignException | NullPointerException e) {

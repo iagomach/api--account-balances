@@ -7,6 +7,6 @@ public class AccountInactiveException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public AccountInactiveException(String fullName) {
-        super("A conta " + fullName + "está inativa.");
+        super("A conta " + fullName + " está inativa.");
     }
 }
