@@ -1,4 +1,4 @@
-package com.fakebank.account.balances.transportlayers.handlers;
+package com.fakebank.account.balances.configs.handlers;
 
 import com.fakebank.account.balances.interactors.exceptions.AccountInactiveException;
 import com.fakebank.account.balances.interactors.exceptions.InsufficientFundsException;
