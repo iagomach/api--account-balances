@@ -44,8 +44,10 @@ paths:
           description: GATEWAY TIMEOUT - A requisição não foi atendida dentro do tempo limite estabelecido
         '529':
           description: 'O site está sobrecarregado e a operação foi recusada, pois foi atingido o limite máximo de TPS global, neste momento.'
+        default:
+          description: Erro não previsto.
       security:
-        - httpBasic: []
+        - httpBasic: [ ]
 components:
   schemas:
     400ResponseErrorBalancesTransfer:
@@ -65,15 +67,14 @@ components:
               - detail
             properties:
               code:
-                $ref: '#/components/schemas/EnumErrorsBalancesTransfer'
+                $ref: '#/components/schemas/EnumBadRequestTransfer'
               title:
                 type: string
                 maxLength: 255
                 pattern: '[\w\W\s]*'
-                example: Conta destino inválida.
+                example: Tipo de transação inválido.
                 description: |
                   Título específico do erro reportado, de acordo com o código enviado:
-                  - CONTA_DESTINO_INVALIDA: Conta destino inválida.
                   - TIPO_TRANSACAO_INVALIDO: Tipo de transferência inválido.
                   - VALOR_TRANSFERENCIA_INVALIDO: Valor da transferência inválido.
               detail:
@@ -83,7 +84,6 @@ components:
                 example: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
                 description: |
                   Descrição específica do erro de acordo com o código reportado:
-                  - CONTA_DESTINO_INVALIDA: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
                   - TIPO_TRANSACAO_INVALIDO: Tipo de transferência informado é inválido.
                   - VALOR_TRANSFERENCIA_INVALIDO: O valor da transferência informado é inválido.
         meta:
@@ -156,14 +156,26 @@ components:
           format: double
           example: '1000.00'
           description: Valor total (BRL) transferido.
+    EnumBadRequestTransfer:
+      type: string
+      enum:
+        - TIPO_TRANSACAO_INVALIDO
+        - VALOR_TRANSFERENCIA_INVALIDO
+      example: TIPO_TRANSACAO_INVALIDO
+      description: |
+        Códigos de erros previstos na solicitação de transferência:
+        - TIPO_TRANSACAO_INVALIDO: Tipo de transferência informado é inválido.
+        - VALOR_TRANSFERENCIA_INVALIDO: O valor da transferência informado é inválido.
     EnumErrorsBalancesTransfer:
       type: string
       enum:
+        - CONTA_INATIVA
         - SALDO_INSUFICIENTE
         - VALOR_ACIMA_LIMITE
       example: SALDO_INSUFICIENTE
       description: |
-        Códigos de erros previstos na criação da iniciação de pagamento:
+        Códigos de erros previstos no processamento da transferência:
+        - CONTA_INATIVA: A conta de origem encontra-se inativa.
         - SALDO_INSUFICIENTE: A conta de origem não possui saldo suficiente para realizar a transferência.
         - VALOR_ACIMA_LIMITE: O valor ultrapassa a faixa de limite diário para transferências.
     EnumTransactionTypes:
@@ -248,15 +260,6 @@ components:
           schema:
             $ref: '#/components/schemas/400ResponseErrorBalancesTransfer'
           examples:
-            Saldo insuficiente:
-              summary: Conta de destino inválida
-              value:
-                errors:
-                  - code: CONTA_DESTINO_INVALIDA
-                    title: Conta de destino inválida.
-                    detail: A conta de destino selecionada não existe ou está impossibilitada de receber transferências no momento.
-                meta:
-                  requestDateTime: '2024-02-04T08:30:00Z'
             Tipo de transferência inválido:
               summary: Tipo de transferência inválido
               value:
@@ -320,6 +323,15 @@ components:
           schema:
             $ref: '#/components/schemas/422ResponseErrorBalancesTransfer'
           examples:
+            Conta inativa:
+              summary: Conta inativa
+              value:
+                errors:
+                  - code: CONTA_INATIVA
+                    title: Conta origem inativa
+                    detail: A conta 'Fulano de Tal' está inativa.
+                meta:
+                  requestDateTime: '2024-02-04T08:30:00Z'
             Saldo insuficiente:
               summary: Saldo insuficiente
               value:
