@@ -8,10 +8,10 @@ public class InsufficientFundsException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public InsufficientFundsException(BigDecimal desiredAmount, BigDecimal availableAmount) {
-        super("O valor da trasnferência: R$'"
+        super("O valor da transferência R$"
                 + desiredAmount
-                + "' é maior do que o limite disponível: R$'"
+                + " é maior do que o limite disponível R$"
                 + availableAmount
-                + "'.");
+                + ".");
     }
 }
