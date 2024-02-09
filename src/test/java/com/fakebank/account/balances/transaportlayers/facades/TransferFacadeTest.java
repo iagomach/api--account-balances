@@ -1,5 +1,7 @@
 package com.fakebank.account.balances.transaportlayers.facades;
 
+import com.fakebank.account.balances.entities.accounts.CustomerAccount;
+import com.fakebank.account.balances.interactors.strategies.models.TransferSameBankRequest;
 import com.fakebank.account.balances.interactors.strategies.samebank.TransferSameBankStrategy;
 import com.fakebank.account.balances.transportlayers.facades.impl.TransferFacadeImpl;
 import com.fakebank.account.balances.transportlayers.models.BalancesTransferRequestDataModel;
@@ -8,33 +10,42 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.*;
 
 @SpringJUnitConfig
 class TransferFacadeTest {
+    public static final String TIPO_NAO_SUPORTADO = "Tipo de transação ainda não suportado.";
     @Mock
     TransferSameBankStrategy transferSameBankStrategy;
 
     @InjectMocks
     private TransferFacadeImpl transferFacade;
 
+    private TransferSameBankRequest transferSameBankRequest;
+    private BalancesTransferRequestDataModel balancesTransferRequestDataModel;
+
     @BeforeEach
     void setup() {
         transferFacade = new TransferFacadeImpl(transferSameBankStrategy);
-        Authentication authentication = mock(Authentication.class);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
+        balancesTransferRequestDataModel = new BalancesTransferRequestDataModel();
+        balancesTransferRequestDataModel.setAmount(BigDecimal.valueOf(100.00));
+        balancesTransferRequestDataModel.setTargetAccountFullName("Fulano de Tal");
+        balancesTransferRequestDataModel.setTransactionType(EnumTransactionTypesModel.TRANSFERENCIA_MESMA_INSTITUICAO);
+        transferSameBankRequest = new TransferSameBankRequest
+                .Builder("Iago Pari Machado")
+                .setAmount(balancesTransferRequestDataModel.getAmount())
+                .setTargetAccountFullName(balancesTransferRequestDataModel.getTargetAccountFullName())
+                .build();
     }
 
     @Test
@@ -45,7 +56,7 @@ class TransferFacadeTest {
         //Act and Assert
         assertThatThrownBy(() -> transferFacade.transferBalances(transferRequest))
                 .isInstanceOf(NotImplementedException.class)
-                .hasMessage("Método ainda não suportado.");
+                .hasMessage(TIPO_NAO_SUPORTADO);
 
     }
 
@@ -57,19 +68,64 @@ class TransferFacadeTest {
         //Act and Assert
         assertThatThrownBy(() -> transferFacade.transferBalances(transferRequest))
                 .isInstanceOf(NotImplementedException.class)
-                .hasMessage("Método ainda não suportado.");
+                .hasMessage(TIPO_NAO_SUPORTADO);
 
     }
 
     @Test
     @WithMockUser(username = "Iago Pari Machado")
     void givenSameAccountTransaction_whenValidate_thenNotThrowsException() {
-        //Arrange
-        var transferRequest = new BalancesTransferRequestDataModel();
-        transferRequest.setTransactionType(EnumTransactionTypesModel.TRANSFERENCIA_MESMA_INSTITUICAO);
-
         //Act and Assert
-        Assertions.assertDoesNotThrow(() -> transferFacade.transferBalances(transferRequest));
+        Assertions.assertDoesNotThrow(() -> transferFacade.transferBalances(balancesTransferRequestDataModel));
+    }
+
+    @Test
+    @WithMockUser(username = "Iago Pari Machado")
+    void givenSameAccountTransfer_whenAuthenticated_thenGetAuthenticatedUsername() {
+        //Arrange
+        ArgumentCaptor<TransferSameBankRequest> transferSameBankRequestArgumentCaptor =
+                ArgumentCaptor.forClass(TransferSameBankRequest.class);
+        //Act
+        transferFacade.transferBalances(balancesTransferRequestDataModel);
+
+        //Assert
+        verify(this.transferSameBankStrategy, times(1))
+                .transfer(transferSameBankRequestArgumentCaptor.capture());
+        assertEquals(transferSameBankRequest.getSourceAccountFullName(),
+                transferSameBankRequestArgumentCaptor.getValue().getSourceAccountFullName());
+    }
+
+    @Test
+    @WithMockUser(username = "Iago Pari Machado")
+    void givenSameAccountTransfer_whenExecuteTransfer_thenSendRequestObject() {
+        //Arrange
+        ArgumentCaptor<TransferSameBankRequest> transferSameBankRequestArgumentCaptor =
+                ArgumentCaptor.forClass(TransferSameBankRequest.class);
+        //Act
+        transferFacade.transferBalances(balancesTransferRequestDataModel);
+
+        //Assert
+        verify(this.transferSameBankStrategy, times(1))
+                .transfer(transferSameBankRequestArgumentCaptor.capture());
+        assertEquals(transferSameBankRequest.getAmount(),
+                transferSameBankRequestArgumentCaptor.getValue().getAmount());
+        assertEquals(transferSameBankRequest.getTargetAccountFullName(),
+                transferSameBankRequestArgumentCaptor.getValue().getTargetAccountFullName());
+    }
+
+    @Test
+    @WithMockUser(username = "Iago Pari Machado")
+    void givenSameAccountTransferAndExecuteTransfer_whenDone_thenReturnUpdatedAvailableLimitFromResponse() {
+        //Arrange
+        var expectedAvailableLimit = new CustomerAccount(transferSameBankRequest.getSourceAccountFullName());
+        expectedAvailableLimit.setAvailableBalancesAmountLimit(BigDecimal.valueOf(10.00));
+        when(transferSameBankStrategy.transfer(any())).thenReturn(expectedAvailableLimit);
+
+        //Act
+        var result = transferFacade.transferBalances(balancesTransferRequestDataModel);
+
+        //Assert
+        assertEquals(expectedAvailableLimit.getAvailableBalancesAmountLimit(), result.getData().getAvailableAmount());
     }
 }
 
