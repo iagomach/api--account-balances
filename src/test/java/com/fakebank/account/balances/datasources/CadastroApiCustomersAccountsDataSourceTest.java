@@ -63,7 +63,7 @@ class CadastroApiCustomersAccountsDataSourceTest {
     }
 
     @Test
-    void givenuUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositNameBeSameReceivedInParam() {
+    void givenUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositNameBeSameReceivedInParam() {
         //Arrange
         when(this.cadastroClientMock.postDeposit(any()))
                 .thenReturn(postDepositResponseMock);
@@ -82,7 +82,7 @@ class CadastroApiCustomersAccountsDataSourceTest {
     }
 
     @Test
-    void givenuUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositAmountBeSameReceivedInParam() {
+    void givenUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositAmountBeSameReceivedInParam() {
         //Arrange
         when(this.cadastroClientMock.postDeposit(any()))
                 .thenReturn(postDepositResponseMock);
@@ -102,7 +102,7 @@ class CadastroApiCustomersAccountsDataSourceTest {
     }
 
     @Test
-    void givenuUpdateAvailableLimitByName_whenCadastroApiResponseIsError_thenShouldThrowInternalServerErrorException() {
+    void givenUpdateAvailableLimitByName_whenCadastroApiResponseIsError_thenShouldThrowInternalServerErrorException() {
         //Arrange
         doThrow(FeignException.class).when(this.cadastroClientMock).postDeposit(any());
 
