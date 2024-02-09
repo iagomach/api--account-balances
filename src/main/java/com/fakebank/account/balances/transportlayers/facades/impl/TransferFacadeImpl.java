@@ -38,6 +38,6 @@ public class TransferFacadeImpl
             BalancesTransferRequestDataModel balancesTransferRequestDataModel) {
         if (!balancesTransferRequestDataModel.getTransactionType()
                 .equals(EnumTransactionTypesModel.TRANSFERENCIA_MESMA_INSTITUICAO))
-            throw new NotImplementedException("Método ainda não suportado.");
+            throw new NotImplementedException("Tipo de transação ainda não suportado.");
     }
 }
