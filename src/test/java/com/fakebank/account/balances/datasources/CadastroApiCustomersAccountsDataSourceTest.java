@@ -1,16 +1,14 @@
 package com.fakebank.account.balances.datasources;
 
 import com.fakebank.account.balances.datasources.clients.CadastroClient;
-import com.fakebank.account.balances.datasources.clients.cadastro.models.AccountIdentificationDataModel;
-import com.fakebank.account.balances.datasources.clients.cadastro.models.BalancesTransferLimitDataModel;
-import com.fakebank.account.balances.datasources.clients.cadastro.models.EnumAccountStatusModel;
-import com.fakebank.account.balances.datasources.clients.cadastro.models.ResponseAccountIdentificationModel;
+import com.fakebank.account.balances.datasources.clients.cadastro.models.*;
 import com.fakebank.account.balances.repositories.exceptions.AccountNotFoundException;
 import com.fakebank.account.balances.repositories.exceptions.InternalServerErrorException;
 import feign.FeignException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,10 +21,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @ExtendWith(SpringExtension.class)
 class CadastroApiCustomersAccountsDataSourceTest {
 
+    public static final String FULANO_DE_TAL = "Fulano de Tal";
     @Mock
     private CadastroClient cadastroClientMock;
 
@@ -37,10 +37,18 @@ class CadastroApiCustomersAccountsDataSourceTest {
 
     private static final String IAGO_PARI_MACHADO = "IAGO_PARI_MACHADO";
 
+    private DepositRequestModel depositRequestModel;
+
+    private ResponseEntity<Void> postDepositResponseMock;
+
     @BeforeEach
     void setup() {
         setResponseAccountIdentificationModelMock();
         cadastroApiCustomersAccountsDataSource = new CadastroApiCustomersAccountsDataSource(this.cadastroClientMock);
+        depositRequestModel = new DepositRequestModel()
+                .name(IAGO_PARI_MACHADO)
+                .amount(BigDecimal.valueOf(100.00));
+        postDepositResponseMock = new ResponseEntity<>(NO_CONTENT);
     }
 
     private void setResponseAccountIdentificationModelMock() {
@@ -52,6 +60,56 @@ class CadastroApiCustomersAccountsDataSourceTest {
         accountIdentificationDataModel.setBalancesTransferLimit(balancesTransferLimitDataModel);
         responseAccountIdentificationModel = new ResponseAccountIdentificationModel();
         responseAccountIdentificationModel.setData(accountIdentificationDataModel);
+    }
+
+    @Test
+    void givenuUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositNameBeSameReceivedInParam() {
+        //Arrange
+        when(this.cadastroClientMock.postDeposit(any()))
+                .thenReturn(postDepositResponseMock);
+        ArgumentCaptor<DepositRequestModel> depositRequestModelArgumentCaptor =
+                ArgumentCaptor.forClass(DepositRequestModel.class);
+
+        //Act
+        cadastroApiCustomersAccountsDataSource
+                .updateAvailableLimitByName(FULANO_DE_TAL, BigDecimal.valueOf(10.00));
+
+        //Assert
+        verify(this.cadastroClientMock, times(1))
+                .postDeposit(depositRequestModelArgumentCaptor.capture());
+        assertEquals(FULANO_DE_TAL,
+                depositRequestModelArgumentCaptor.getValue().getName());
+    }
+
+    @Test
+    void givenuUpdateAvailableLimitByName_whenSendRequest_thenShouldDepositAmountBeSameReceivedInParam() {
+        //Arrange
+        when(this.cadastroClientMock.postDeposit(any()))
+                .thenReturn(postDepositResponseMock);
+        ArgumentCaptor<DepositRequestModel> depositRequestModelArgumentCaptor =
+                ArgumentCaptor.forClass(DepositRequestModel.class);
+        var expectedAmount = BigDecimal.valueOf(10.00);
+
+        //Act
+        cadastroApiCustomersAccountsDataSource
+                .updateAvailableLimitByName(FULANO_DE_TAL, expectedAmount);
+
+        //Assert
+        verify(this.cadastroClientMock, times(1))
+                .postDeposit(depositRequestModelArgumentCaptor.capture());
+        assertEquals(expectedAmount,
+                depositRequestModelArgumentCaptor.getValue().getAmount());
+    }
+
+    @Test
+    void givenuUpdateAvailableLimitByName_whenCadastroApiResponseIsError_thenShouldThrowInternalServerErrorException() {
+        //Arrange
+        doThrow(FeignException.class).when(this.cadastroClientMock).postDeposit(any());
+
+        //Act / Assert
+        assertThatThrownBy(() -> cadastroApiCustomersAccountsDataSource
+                .updateAvailableLimitByName(FULANO_DE_TAL, BigDecimal.valueOf(10.00)))
+                .isInstanceOf(InternalServerErrorException.class);
     }
 
     @Test
@@ -160,4 +218,6 @@ class CadastroApiCustomersAccountsDataSourceTest {
         assertThatThrownBy(() -> cadastroApiCustomersAccountsDataSource.findByName(IAGO_PARI_MACHADO))
                 .isInstanceOf(InternalServerErrorException.class);
     }
+
+
 }
