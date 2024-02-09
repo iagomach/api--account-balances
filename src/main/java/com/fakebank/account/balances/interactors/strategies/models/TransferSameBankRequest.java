@@ -28,11 +28,6 @@ public class TransferSameBankRequest {
             this.sourceAccountFullName = sourceAccountFullName;
         }
 
-        public Builder setSourceAccountFullName(String sourceAccount) {
-            this.sourceAccountFullName = sourceAccount;
-            return this;
-        }
-
         public Builder setTargetAccountFullName(String targetAccount) {
             this.targetAccountFullName = targetAccount;
             return this;
