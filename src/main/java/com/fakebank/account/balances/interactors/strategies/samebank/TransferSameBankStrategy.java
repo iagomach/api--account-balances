@@ -2,7 +2,6 @@ package com.fakebank.account.balances.interactors.strategies.samebank;
 
 import com.fakebank.account.balances.entities.accounts.CustomerAccount;
 import com.fakebank.account.balances.entities.accounts.StatusEnum;
-import com.fakebank.account.balances.interactors.clients.bacen.models.NotificationRequestDataModel;
 import com.fakebank.account.balances.interactors.exceptions.AccountInactiveException;
 import com.fakebank.account.balances.interactors.exceptions.InsufficientFundsException;
 import com.fakebank.account.balances.interactors.exceptions.LimitExceededException;
@@ -18,11 +17,9 @@ import static com.fakebank.account.balances.interactors.clients.bacen.models.Enu
 
 @Service
 public class TransferSameBankStrategy implements TransferStrategy<TransferSameBankRequest, CustomerAccount> {
-    public static final String BACEN_NOTIFICADO_SUCESSO =
-            "Transferencia de {} para {} no valor de R${} notificada com sucesso.";
-    public static final String LIMITE_ATUALIZADO_SUCESSO = "Limite disponivel para conta {} atualizado com sucesso.";
     public static final String INICIANDO_TRANSFERENCIA = "Iniciando transferencia de {} para {} no valor de R${}";
-    public static final String TRANSFERENCIA_CONCLUIDA = "Transferencia de {} para {} no valor de R${} concluida com sucesso.";
+    public static final String TRANSFERENCIA_CONCLUIDA =
+            "Transferencia de {} para {} no valor de R${} concluida com sucesso.";
     Logger logger = LogManager.getLogger(TransferSameBankStrategy.class);
     private final BacenNotificationService bacenNotificationService;
     private final CustomersAccountsRepository customersAccountsRepository;
@@ -50,7 +47,10 @@ public class TransferSameBankStrategy implements TransferStrategy<TransferSameBa
                 .updateAvailableLimitByName(transferSameBankRequest.getTargetAccountFullName(),
                         transferSameBankRequest.getAmount());
 
-        notifyBacen(transferSameBankRequest);
+        this.bacenNotificationService.send(transferSameBankRequest.getSourceAccountFullName(),
+                transferSameBankRequest.getAmount(),
+                TRANSFERENCIA_MESMA_INSTITUICAO,
+                transferSameBankRequest.getTargetAccountFullName());
 
         logger.info(TRANSFERENCIA_CONCLUIDA,
                 transferSameBankRequest.getSourceAccountFullName(),
@@ -60,43 +60,21 @@ public class TransferSameBankStrategy implements TransferStrategy<TransferSameBa
         return sourceCustomerAccount;
     }
 
-    private void notifyBacen(TransferSameBankRequest transferSameBankRequest) {
-        NotificationRequestDataModel notificationRequestDataModel
-                = buildBacenNotificationRequest(transferSameBankRequest);
-
-        this.bacenNotificationService.send(notificationRequestDataModel);
-
-        logger.info(BACEN_NOTIFICADO_SUCESSO,
-                transferSameBankRequest.getSourceAccountFullName(),
-                transferSameBankRequest.getTargetAccountFullName(),
-                transferSameBankRequest.getAmount());
-    }
-
-    private void updateSourceAccountAvailableLimit(TransferSameBankRequest transferSameBankRequest, CustomerAccount sourceCustomerAccount) {
+    private void updateSourceAccountAvailableLimit(TransferSameBankRequest transferSameBankRequest,
+                                                   CustomerAccount sourceCustomerAccount) {
         var updatedAmount = sourceCustomerAccount
                 .getAvailableBalancesAmountLimit()
                 .subtract(transferSameBankRequest.getAmount());
 
         sourceCustomerAccount
                 .setAvailableBalancesAmountLimit(updatedAmount);
-
-        logger.info(LIMITE_ATUALIZADO_SUCESSO,
-                transferSameBankRequest.getSourceAccountFullName());
     }
 
-    private static void executeBusinessValidations(TransferSameBankRequest transferSameBankRequest, CustomerAccount sourceCustomerAccount) {
+    private static void executeBusinessValidations(TransferSameBankRequest transferSameBankRequest,
+                                                   CustomerAccount sourceCustomerAccount) {
         validateActive(sourceCustomerAccount);
         validateLimitExceeded(transferSameBankRequest, sourceCustomerAccount);
         validateInsufficientFunds(transferSameBankRequest, sourceCustomerAccount);
-    }
-
-    private static NotificationRequestDataModel buildBacenNotificationRequest(
-            TransferSameBankRequest transferSameBankRequest) {
-        NotificationRequestDataModel notificationRequestDataModel = new NotificationRequestDataModel();
-        notificationRequestDataModel.setAmount(transferSameBankRequest.getAmount());
-        notificationRequestDataModel.setTransactionType(TRANSFERENCIA_MESMA_INSTITUICAO);
-        notificationRequestDataModel.setTargetAccountFullName(transferSameBankRequest.getTargetAccountFullName());
-        return notificationRequestDataModel;
     }
 
     private static void validateInsufficientFunds(TransferSameBankRequest transferSameBankRequest,

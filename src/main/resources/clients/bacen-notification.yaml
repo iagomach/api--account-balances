@@ -29,10 +29,17 @@ components:
     NotificationRequestData:
       type: object
       required:
+        - sourceAccountFullName
         - targetAccountFullName
         - transactionType
         - amount
       properties:
+        sourceAccountFullName:
+          type: string
+          description: Nome completo do cliente da conta de origem,
+          maxLength: 70
+          pattern: ^[\w\W]*$
+          example: Iago Machado
         targetAccountFullName:
           type: string
           description: Nome completo do cliente da conta de destino,

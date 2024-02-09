@@ -209,11 +209,9 @@ components:
     EnumTransferPendingStatus:
       type: string
       enum:
-        - PENDENTE_VALIDACAO
         - PENDENTE_DEPOSITO
       example: PENDENTE_VALIDACAO
       description: |
-        PENDENTE_VALIDACAO: A transferência está pendente de validação de saldo, limite disponível e limite máximo configurado.
         PENDENTE_DEPOSITO: Transferência validada com sucesso, porém a transferência está pendente.
     MetaOnlyRequestDateTime:
       type: object

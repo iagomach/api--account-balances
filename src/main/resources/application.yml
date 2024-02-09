@@ -3,5 +3,47 @@ server:
 
 clients:
   url:
-    cadastro: https://localhost:3000/customers/v1
-    bacen: https://localhost:3000/bacen/accounts/v1
+    cadastro: http://localhost:3000/customers/v1
+    bacen: http://localhost:3000/bacen/accounts/v1
+
+resilience4j:
+  ratelimiter:
+    instances:
+      bacen:
+        limitForPeriod: 3000
+        limitRefreshPeriod: 1s
+        timeoutDuration: 1s
+  retry:
+    instances:
+      bacenRateLimitRetry:
+        maxRetryAttempts: 3
+        waitDuration: 100ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+      cadastroApiFindRetry:
+        maxRetryAttempts: 3
+        waitDuration: 50ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 3
+        retryExceptions:
+          - com.fakebank.account.balances.repositories.exceptions.InternalServerErrorException
+        ignoreExceptions:
+          - com.fakebank.account.balances.repositories.exceptions.AccountNotFoundException
+  circuitbreaker:
+    instances:
+      bacenCircuitBreaker:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based
+      cadastroApiCircuitBreaker:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        permitted-number-of-calls-in-half-open-state: 3
+        sliding-window-size: 10
+        sliding-window-type: count_based

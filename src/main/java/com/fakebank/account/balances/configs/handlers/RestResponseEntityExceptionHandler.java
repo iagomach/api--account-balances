@@ -8,6 +8,10 @@ import com.fakebank.account.balances.repositories.exceptions.InternalServerError
 import com.fakebank.account.balances.transportlayers.dtos.ErrorDto;
 import com.fakebank.account.balances.transportlayers.dtos.MetaDto;
 import com.fakebank.account.balances.transportlayers.dtos.ResponseErrorDto;
+import com.fakebank.account.balances.transportlayers.models.BalancesTransferPendingDataModel;
+import com.fakebank.account.balances.transportlayers.models.EnumTransferPendingStatusModel;
+import com.fakebank.account.balances.transportlayers.models.MetaOnlyRequestDateTimeModel;
+import com.fakebank.account.balances.transportlayers.models.ResponsePendingTransferModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -16,9 +20,11 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import static com.fakebank.account.balances.transportlayers.models.EnumErrorsBalancesTransferModel.*;
+import static org.springframework.http.HttpStatus.ACCEPTED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @ControllerAdvice
@@ -70,6 +76,30 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 OCORREU_UM_ERRO_INESPERADO_NO_SERVIDOR_CONTATE_O_ADMINISTRADOR_DO_SISTEMA);
         ResponseErrorDto responseErrorDto = getResponseErrorDto(errorDto);
         return new ResponseEntity<>(responseErrorDto, INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({PendingUpdateAvailableAmountException.class})
+    public ResponseEntity<Object> pendingUpdateAvailableAmountExceptionHandler(PendingUpdateAvailableAmountException e,
+                                                                               WebRequest request) {
+        this.logger.warn("Nao foi possivel finalizar o deposito no valor de R$" + e.getAmountToSum()
+                + " para " + e.getFullName() + ". Id da transacao: " + e.getTransactionId().toString());
+
+        ResponsePendingTransferModel responsePendingTransferModel = getResponsePendingTransferModel(e);
+
+        return new ResponseEntity<>(responsePendingTransferModel, ACCEPTED);
+    }
+
+    private static ResponsePendingTransferModel getResponsePendingTransferModel(PendingUpdateAvailableAmountException e) {
+        BalancesTransferPendingDataModel balancesTransferPendingDataModel = new BalancesTransferPendingDataModel();
+        MetaOnlyRequestDateTimeModel metaOnlyRequestDateTimeModel = new MetaOnlyRequestDateTimeModel();
+
+        balancesTransferPendingDataModel.setStatus(EnumTransferPendingStatusModel.DEPOSITO);
+        balancesTransferPendingDataModel.setTransactionId(e.getTransactionId());
+        metaOnlyRequestDateTimeModel.setRequestDateTime(OffsetDateTime.now());
+        ResponsePendingTransferModel responsePendingTransferModel = new ResponsePendingTransferModel();
+        responsePendingTransferModel.setData(balancesTransferPendingDataModel);
+        responsePendingTransferModel.setMeta(metaOnlyRequestDateTimeModel);
+        return responsePendingTransferModel;
     }
 
     private static ErrorDto getErrorDto(String code, String title, String detail) {
