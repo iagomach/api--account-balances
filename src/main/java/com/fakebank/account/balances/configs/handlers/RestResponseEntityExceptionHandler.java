@@ -93,7 +93,7 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
         BalancesTransferPendingDataModel balancesTransferPendingDataModel = new BalancesTransferPendingDataModel();
         MetaOnlyRequestDateTimeModel metaOnlyRequestDateTimeModel = new MetaOnlyRequestDateTimeModel();
 
-        balancesTransferPendingDataModel.setStatus(EnumTransferPendingStatusModel.DEPOSITO);
+        balancesTransferPendingDataModel.setStatus(EnumTransferPendingStatusModel.PENDENTE_DEPOSITO);
         balancesTransferPendingDataModel.setTransactionId(e.getTransactionId());
         metaOnlyRequestDateTimeModel.setRequestDateTime(OffsetDateTime.now());
         ResponsePendingTransferModel responsePendingTransferModel = new ResponsePendingTransferModel();
