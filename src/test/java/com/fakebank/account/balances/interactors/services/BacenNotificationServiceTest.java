@@ -123,16 +123,4 @@ class BacenNotificationServiceTest {
                 .send(IAGO_PARI_MACHADO, expectedTransferAmount, expectedTransactionType, FULANO_DE_TAL))
                 .isInstanceOf(FeignException.class);
     }
-
-    NotificationRequestDataModel buildBacenNotificationRequest(String sourceAccountName,
-                                                               BigDecimal transferAmount,
-                                                               EnumTransactionTypesModel transactionType,
-                                                               String targetAccountName) {
-        NotificationRequestDataModel notificationRequestDataModel = new NotificationRequestDataModel();
-        notificationRequestDataModel.setSourceAccountFullName(sourceAccountName);
-        notificationRequestDataModel.setAmount(transferAmount);
-        notificationRequestDataModel.setTransactionType(transactionType);
-        notificationRequestDataModel.setTargetAccountFullName(targetAccountName);
-        return notificationRequestDataModel;
-    }
 }
