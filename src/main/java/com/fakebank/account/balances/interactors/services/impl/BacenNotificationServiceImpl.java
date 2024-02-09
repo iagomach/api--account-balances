@@ -61,9 +61,9 @@ public class BacenNotificationServiceImpl implements BacenNotificationService {
         return notificationRequestDataModel;
     }
 
-    public void bacenFallback(String sourceAccountName, BigDecimal transferAmount,
-                              EnumTransactionTypesModel transactionType,
-                              String targetAccountName, Throwable throwable) {
+    private void bacenFallback(String sourceAccountName, BigDecimal transferAmount,
+                               EnumTransactionTypesModel transactionType,
+                               String targetAccountName, Throwable throwable) {
         //Envia para fila de reprocessamento para quando o servico for reestabelecido.
         logger.warn(NAO_FOI_POSSIVEL_NOTIFICAR_NO_MOMENTO,
                 transferAmount,
