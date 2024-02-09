@@ -30,6 +30,8 @@ paths:
       responses:
         '200':
           $ref: '#/components/responses/OKResponseBalancesTransfer'
+        '202':
+          $ref: '#/components/responses/AcceptedFallbackResponse'
         '400':
           $ref: '#/components/responses/BadRequestBalancesTransfer'
         '401':
@@ -126,6 +128,21 @@ components:
                   - VALOR_ACIMA_LIMITE: O valor ultrapassa a faixa de limite diário para transferências.
         meta:
           $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    BalancesTransferPendingData:
+      type: object
+      required:
+        - status
+        - transactionId
+      properties:
+        status:
+          $ref: '#/components/schemas/EnumTransferPendingStatus'
+        transactionId:
+          type: string
+          format: uuid
+          maxLength: 36
+          pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+          example: d78fc4e5-37ca-4da3-adf2-9b082bf92280
+          description: 'Um UUID [RFC4122](https://tools.ietf.org/html/rfc4122) usado para identificar transação, para consulta de seu status.'
     BalancesTransferData:
       type: object
       required:
@@ -189,6 +206,15 @@ components:
         - DOC
         - TRANSFERENCIA_MESMA_INSTITUICAO
       example: TRANSFERENCIA_MESMA_INSTITUICAO
+    EnumTransferPendingStatus:
+      type: string
+      enum:
+        - PENDENTE_VALIDACAO
+        - PENDENTE_DEPOSITO
+      example: PENDENTE_VALIDACAO
+      description: |
+        PENDENTE_VALIDACAO: A transferência está pendente de validação de saldo, limite disponível e limite máximo configurado.
+        PENDENTE_DEPOSITO: Transferência validada com sucesso, porém a transferência está pendente.
     MetaOnlyRequestDateTime:
       type: object
       description: Meta informações referente à API requisitada.
@@ -234,6 +260,16 @@ components:
                 maxLength: 2048
         meta:
           $ref: '#/components/schemas/MetaOnlyRequestDateTime'
+    ResponsePendingTransfer:
+      type: object
+      required:
+        - data
+        - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/BalancesTransferPendingData'
+        meta:
+          $ref: '#/components/schemas/MetaOnlyRequestDateTime'
     ResponseTransferedBalances:
       type: object
       required:
@@ -255,6 +291,18 @@ components:
       type: http
       scheme: basic
   responses:
+    AcceptedFallbackResponse:
+      description: Transação pendente, consulte o status para acompanhar a finalização.
+      headers:
+        X-W3C-TraceId:
+          required: true
+          description: 'Sequência hexadecimal de 32 caracteres, usado como um id de correlação entre request e response.'
+          schema:
+            $ref: '#/components/schemas/XB3TraceId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsePendingTransfer'
     BadRequestBalancesTransfer:
       description: 'A sintaxe da requisição esta correta, mas não foi possível processar as instruções presentes.'
       content:
