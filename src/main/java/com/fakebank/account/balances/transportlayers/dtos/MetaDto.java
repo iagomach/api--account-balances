@@ -1,16 +1,17 @@
 package com.fakebank.account.balances.transportlayers.dtos;
 
 
+import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
 
 public class MetaDto {
-    private final ZonedDateTime requestDateTime;
+    private final OffsetDateTime requestDateTime;
 
     public MetaDto() {
-        this.requestDateTime = ZonedDateTime.now();
+        this.requestDateTime = OffsetDateTime.now();
     }
 
-    public ZonedDateTime getRequestDateTime() {
+    public OffsetDateTime getRequestDateTime() {
         return this.requestDateTime;
     }
 }

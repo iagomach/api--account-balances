@@ -4,7 +4,7 @@ server:
 clients:
   url:
     cadastro: http://localhost:3000/customers/v1
-    bacen: http://localhost:3000/bacen/accounts/v1
+    bacen: http://localhost:8000/bacen/accounts/v1
 
 resilience4j:
   ratelimiter:

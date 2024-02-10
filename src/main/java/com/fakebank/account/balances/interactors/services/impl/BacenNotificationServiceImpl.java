@@ -16,8 +16,6 @@ import java.math.BigDecimal;
 
 @Service
 public class BacenNotificationServiceImpl implements BacenNotificationService {
-    public static final String NAO_FOI_POSSIVEL_NOTIFICAR_NO_MOMENTO = "Nao foi possivel enviar notificacao da " +
-            "transferencia de R${} da conta {} para {} no momento. Enviando para fila de reprocessamento.";
     private final BacenClient bacenClient;
     public static final String BACEN_NOTIFICADO_SUCESSO =
             "Transferencia de {} para {} no valor de R${} notificada com sucesso.";
@@ -65,10 +63,6 @@ public class BacenNotificationServiceImpl implements BacenNotificationService {
                                EnumTransactionTypesModel transactionType,
                                String targetAccountName, Throwable throwable) {
         //Envia para fila de reprocessamento para quando o servico for reestabelecido.
-        logger.warn(NAO_FOI_POSSIVEL_NOTIFICAR_NO_MOMENTO,
-                transferAmount,
-                sourceAccountName,
-                targetAccountName
-        );
+
     }
 }
