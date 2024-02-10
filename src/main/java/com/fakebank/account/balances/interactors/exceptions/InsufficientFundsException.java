@@ -9,9 +9,9 @@ public class InsufficientFundsException extends RuntimeException {
 
     public InsufficientFundsException(BigDecimal desiredAmount, BigDecimal availableAmount) {
         super("O valor da transferência R$"
-                + desiredAmount
+                + String.format("%.2f", desiredAmount)
                 + " é maior do que o limite disponível R$"
-                + availableAmount
+                + String.format("%.2f", availableAmount)
                 + ".");
     }
 }

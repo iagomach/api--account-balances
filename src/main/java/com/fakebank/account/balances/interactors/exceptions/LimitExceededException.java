@@ -9,9 +9,9 @@ public class LimitExceededException extends RuntimeException {
 
     public LimitExceededException(BigDecimal desiredAmount, BigDecimal maxLimitAmount) {
         super("O valor da transferência: R$"
-                + desiredAmount
+                + String.format("%.2f", desiredAmount)
                 + " é maior do que o limite máximo definido: R$"
-                + maxLimitAmount
+                + String.format("%.2f", maxLimitAmount)
                 + ".");
     }
 }

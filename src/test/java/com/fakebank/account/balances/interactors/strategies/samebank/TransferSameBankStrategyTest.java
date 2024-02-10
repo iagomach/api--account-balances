@@ -84,9 +84,9 @@ public class TransferSameBankStrategyTest {
         assertThatThrownBy(() -> this.transferSameBankStrategy.transfer(transferSameBankRequest))
                 .isInstanceOf(LimitExceededException.class)
                 .hasMessage("O valor da transferência: R$"
-                        + transferSameBankRequest.getAmount()
+                        + String.format("%.2f", transferSameBankRequest.getAmount())
                         + " é maior do que o limite máximo definido: R$"
-                        + customerAccount.getMaxSetBalancesAmountLimit()
+                        + String.format("%.2f", customerAccount.getMaxSetBalancesAmountLimit())
                         + ".");
     }
 
@@ -100,9 +100,9 @@ public class TransferSameBankStrategyTest {
         assertThatThrownBy(() -> this.transferSameBankStrategy.transfer(transferSameBankRequest))
                 .isInstanceOf(InsufficientFundsException.class)
                 .hasMessage("O valor da transferência R$"
-                        + transferSameBankRequest.getAmount()
+                        + String.format("%.2f", transferSameBankRequest.getAmount())
                         + " é maior do que o limite disponível R$"
-                        + customerAccount.getAvailableBalancesAmountLimit()
+                        + String.format("%.2f", customerAccount.getAvailableBalancesAmountLimit())
                         + ".");
     }
 
