@@ -43,5 +43,17 @@ Substitua `<SEU_IP_LOCAL>` pelo seu endereço IP local (por exemplo, 192.168.0.1
    endereço IP local.
 
 2. Execute o projeto normalmente.
+3. Chame a API com comando baixo:
+    ```bash
+   curl --location 'http://localhost:5000/accounts/v1/transfer' \
+   --header 'Content-Type: application/json' \
+   --header 'Authorization: Basic SWFnbyBQYXJpIE1hY2hhZG86aXRhdQ==' \
+   --data '{
+   "targetAccountFullName": "Milton Nascimento",
+   "transactionType": "TRANSFERENCIA_MESMA_INSTITUICAO",
+   "amount": 1000.00
+   }'
+    ```
+   Obs: Fique à vontade para trocar os valores do payload de solicitação.
 
 Agora você está pronto para usar a API Account Balances! 🚀
