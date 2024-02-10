@@ -24,8 +24,6 @@ paths:
       tags:
         - Customers Accounts
       operationId: customersPostDeposit
-      parameters:
-        - $ref: '#/components/parameters/customerName'
       requestBody:
         required: true
         content:
